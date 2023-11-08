@@ -168,9 +168,9 @@ public class MapLoader : MonoBehaviour
         for (int i = 0; i < lump.length; i += 12)
         {
 
-            float x = -(BitConverter.ToSingle(fileBytes, (int)lump.offset + i) * 0.1f);
-            float y = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 4) * 0.1f;
-            float z = (BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 8) * 0.1f);
+            float x = (BitConverter.ToSingle(fileBytes, (int)lump.offset + i) * 1);
+            float y = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 4) * 1;
+            float z = (BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 8) * 1);
 
             //Debug.Log(x + ", " + y + ", " + z);
 
@@ -279,19 +279,19 @@ public class MapLoader : MonoBehaviour
         for (int i = 0; i < lump.length; i += 40)
         {
 
-            Single sx = BitConverter.ToSingle(fileBytes, (int)lump.offset + i) * 0.1f;
-            Single sy = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 4) * 0.1f;
-            Single sz = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 8) * 0.1f;
+            Single sx = BitConverter.ToSingle(fileBytes, (int)lump.offset + i) * 1f;
+            Single sy = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 4) * 1f;
+            Single sz = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 8) * 1f;
 
-            Vector3 vec3s = new Vector3(sy, sz, -sx);
-            float offs = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 12) * 0.1f;
+            Vector3 vec3s = new Vector3(sy, sz, sx);
+            float offs = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 12) * 1f;
             
-            Single tx = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 16) * 0.1f;
-            Single ty = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 20) * 0.1f;
-            Single tz = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 24) * 0.1f;
+            Single tx = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 16) * 1f;
+            Single ty = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 20) * 1f;
+            Single tz = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 24) * 1f;
             
-            Vector3 vec3t = new Vector3(ty, tz, -tx);
-            float offt = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 28) * 0.1f;
+            Vector3 vec3t = new Vector3(ty, tz, tx);
+            float offt = BitConverter.ToSingle(fileBytes, (int)lump.offset + i + 28) * 1f;
 
             UInt32 miptex = BitConverter.ToUInt32(fileBytes, (int)lump.offset + i + 32);
             UInt32 flags = BitConverter.ToUInt32(fileBytes, (int)lump.offset + i + 36);
@@ -464,13 +464,6 @@ public class MapLoader : MonoBehaviour
 
         miptex.material = material;
 
-        // create a plane to put the texture on
-        GameObject plane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        plane.transform.parent = gameObject.transform;
-        plane.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-        plane.transform.localPosition = new Vector3((float)1.3 * (float)index, 30, 0);
-        plane.GetComponent<MeshRenderer>().material = material;
-
         return miptex;
 
     }
@@ -490,7 +483,6 @@ public class MapLoader : MonoBehaviour
         Mesh faceMesh = new Mesh();
         faceMesh.name = "BSPmesh";
 
-        // grab our verts
         Vector3[] verts = new Vector3[face.num_edges];
         uint edgestep = face.first_edge;
         for (int i = 0; i < face.num_edges; i++)
@@ -506,7 +498,6 @@ public class MapLoader : MonoBehaviour
             edgestep++;
         }
 
-        // whip up tris
         int[] tris = new int[(face.num_edges - 2) * 3];
         int tristep = 1;
         for (int i = 1; i < verts.Length - 1; i++)
@@ -517,7 +508,6 @@ public class MapLoader : MonoBehaviour
             tristep += 3;
         }
 
-        // whip up uvs
         Vector2[] uvs = new Vector2[verts.Length];
         for (int i = 0; i < uvs.Length; i++)
         {
@@ -527,7 +517,7 @@ public class MapLoader : MonoBehaviour
             uvs[i] = new Vector2(s, t);
         }
 
-        //Array.Reverse(tris);
+        Array.Reverse(tris);
 
         faceMesh.vertices = verts;
         faceMesh.triangles = tris;
@@ -538,9 +528,6 @@ public class MapLoader : MonoBehaviour
         faceObject.AddComponent<MeshRenderer>();
         faceObject.AddComponent<MeshCollider>();
 
-        //faceObject.isStatic = true;
-
-        // get face miptex
         faceObject.GetComponent<MeshRenderer>().material = MipTex[TexInfo[face.tex_info].miptex].material;
 
         return faceObject;
